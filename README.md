@@ -2,5 +2,37 @@
 
 The server side uses Python for the language and FastAPI for the web framework.
 
-> I must say this, FastAPI is the best web framework I've ever used, glad I find it!
+> I must say FastAPI is the best web framework I've ever find
 
+## Run the app
+
+1. Run the server
+2. Run the client
+3. Go to your browser
+
+### Run the server
+
+```bash
+uv run fastapi run --port=8080
+```
+
+### Run the client
+
+```bash
+bun dev --host
+```
+
+### Go to browser
+
+Type this url on the browser url bar:
+```txt
+http://localhost:5173
+```
+
+## Features
+
+- Download as video (mp4)
+- Download as audio (mp3) (Not yet implemented)
+- Download subtitle only (Not yet implemented)
+- Download playlist (Not yet implemented)
+- Available as Docker image distribution (Not yet implemented)
