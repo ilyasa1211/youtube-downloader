@@ -10,14 +10,12 @@ class HMACSigner(SignatureGenerator, SignatureVerifier):
         super().__init__()
         self.__secret = secret
 
-    def Generate(self, content: str) -> str:
-        b = hmac.new(
+    def Generate(self, content: str) -> bytes:
+        return hmac.new(
             self.__secret.encode("utf-8"), content.encode("utf-8"), hashlib.sha256
         ).digest()
 
-        return b.decode("utf-8")
-
-    def Verify(self, content: str, signature: str) -> bool:
+    def Verify(self, content: str, signature: bytes) -> bool:
         expected = self.Generate(content)
 
         return hmac.compare_digest(expected, signature)

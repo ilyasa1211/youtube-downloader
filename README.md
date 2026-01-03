@@ -32,7 +32,7 @@ http://localhost:5173
 ## Features
 
 - Download as video (mp4)
-- Download as audio (mp3) (Not yet implemented)
+- Download as audio (mp3)
 - Download subtitle only (Not yet implemented)
 - Download playlist (Not yet implemented)
 - Available as Docker image distribution (Not yet implemented)

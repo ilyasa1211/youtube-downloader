@@ -7,7 +7,7 @@ from fastapi import (
     Body,
     HTTPException,
 )
-from fastapi.responses import FileResponse, RedirectResponse, Response
+from fastapi.responses import FileResponse, Response
 
 from typing import Annotated
 from functools import lru_cache
@@ -22,7 +22,7 @@ def get_settings():
     return Settings()  # type: ignore
 
 
-@lru_cache
+# @lru_cache
 def get_hmac_signer(settings: Annotated[Settings, Depends(get_settings)]):
     return HMACSigner(settings.hmac_secret_key)
 
@@ -55,28 +55,36 @@ class PrepareDownloadRequest(BaseModel):
     format: str
 
 
-@app.post("/download", description="Returns presigned url")
+class PrepareDownloadResponse(BaseModel):
+    redirect: str
+
+
+@app.post(
+    "/download",
+    description="Returns presigned url",
+    response_model=PrepareDownloadResponse,
+)
 def prepare_download(
     body: Annotated[PrepareDownloadRequest, Body()],
     hmac_signer: Annotated[HMACSigner, Depends(get_hmac_signer)],
+    background_tasks: BackgroundTasks,
 ):
     handler = PrepareDownloadHandler(hmac_signer)
-    result = handler.Handle(body.url, body.format)
+    result = handler.Handle(
+        url=body.url, ext=body.format, background_tasks=background_tasks
+    )
 
     (path, error) = result
 
     if error is not None:
-        return HTTPException(error.get_code(), error.get_message())
+        raise HTTPException(error.get_code(), error.get_message())
 
     if path is None:
-        return HTTPException(
+        raise HTTPException(
             status.HTTP_503_SERVICE_UNAVAILABLE, "failed to return path"
         )
 
-    return RedirectResponse(
-        url=str(path),
-        status_code=status.HTTP_303_SEE_OTHER,
-    )
+    return PrepareDownloadResponse(redirect=str(path))
 
 
 @app.get(
@@ -94,9 +102,9 @@ def download_from_presigned_url(
     (path, error) = result
 
     if error:
-        return HTTPException(status_code=error.get_code(), detail=error.get_message())
+        raise HTTPException(status_code=error.get_code(), detail=error.get_message())
 
     if path is None:
-        return HTTPException(status_code=500, detail="no file path returned")
+        raise HTTPException(status_code=500, detail="no file path returned")
 
     return FileResponse(path=str(path))

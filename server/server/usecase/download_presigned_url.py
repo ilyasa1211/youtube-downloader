@@ -14,9 +14,9 @@ class DownloadPresignedUrlHandler:
         self.__signature_verifier = signature_verifier
 
     def Handle(
-        self, sig: str, filename: str, background_tasks: BackgroundTasks
+        self, filename: str, sig: str, background_tasks: BackgroundTasks
     ) -> Result:
-        signature = base64.urlsafe_b64decode(sig).decode("utf-8")
+        signature = base64.urlsafe_b64decode(sig)
 
         if not self.__signature_verifier.Verify(filename, signature):
             return Result(
@@ -31,8 +31,5 @@ class DownloadPresignedUrlHandler:
             )
 
         background_tasks.add_task(lambda: remove_file_if_exists(str(path)))
-        background_tasks.add_task(
-            lambda: remove_file_if_exists(str(path.with_suffix(".mp4")))
-        )
 
         return Result(path, None)
