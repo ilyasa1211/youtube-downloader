@@ -2,8 +2,6 @@
 
 The server side uses Python for the language and FastAPI for the web framework.
 
-> I must say FastAPI is the best web framework I've ever find
-
 ## Run the app
 
 1. Run the server
