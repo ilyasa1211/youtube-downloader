@@ -3,12 +3,12 @@ import { Icon } from "@iconify/vue";
 import { ref } from "vue";
 
 type DownloadResponse = {
-  redirect: string
-}
+  redirect: string;
+};
 type DownloadPayload = {
-  url: string,
-  format: string
-}
+  url: string;
+  format: string;
+};
 
 const urlInput = ref<string>("");
 const processing = ref<boolean>(false);
@@ -23,24 +23,26 @@ async function handleClick() {
 
   processing.value = true;
 
-  const url = baseUrl.origin + '/download';
+  const url = baseUrl.origin + "/download";
 
   const payload: DownloadPayload = {
     url: urlInput.value,
-    format: 'mp4',
+    format: "mp4",
   };
 
   const result = await fetch(url, {
     body: JSON.stringify(payload),
-    method: 'POST',
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json'
-    }
-  }).then((response) => {
-    return response.json() as Promise<DownloadResponse>;
-  }).catch((error) => {
-    return error as Promise<Error>;
-  });
+      "Content-Type": "application/json",
+    },
+  })
+    .then((response) => {
+      return response.json() as Promise<DownloadResponse>;
+    })
+    .catch((error) => {
+      return error as Promise<Error>;
+    });
 
   processing.value = false;
 
