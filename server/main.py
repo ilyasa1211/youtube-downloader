@@ -14,7 +14,7 @@ from functools import lru_cache
 from server.settings import Settings
 from server.usecase import DownloadPresignedUrlHandler, PrepareDownloadHandler
 from server.sign import HMACSigner
-from pydantic import BaseModel
+from pydantic import BaseModel, HttpUrl
 
 
 @lru_cache
@@ -51,7 +51,7 @@ def preflight(response: Response):
 
 
 class PrepareDownloadRequest(BaseModel):
-    url: str
+    url: HttpUrl
     format: str
 
 
@@ -68,10 +68,15 @@ def prepare_download(
     body: Annotated[PrepareDownloadRequest, Body()],
     hmac_signer: Annotated[HMACSigner, Depends(get_hmac_signer)],
     background_tasks: BackgroundTasks,
+    response: Response,
 ):
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Methods"] = "POST, OPTIONS"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type"
+
     handler = PrepareDownloadHandler(hmac_signer)
     result = handler.Handle(
-        url=body.url, ext=body.format, background_tasks=background_tasks
+        url=body.url.encoded_string(), ext=body.format, background_tasks=background_tasks
     )
 
     (path, error) = result
